@@ -2,14 +2,18 @@ package com.example.socialmedia;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,7 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button mLogin;
     private ProgressBar progressBar; // show dialog when registering user
     private FirebaseAuth mAuth;
-    private TextView noHaveAccountTv;
+    private TextView noHaveAccountTv, recoverPassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +57,74 @@ public class LoginActivity extends AppCompatActivity {
                 login(email, password);
             }
         });
+        // handle no have account text when click
+        noHaveAccountTv.setOnClickListener(v -> {
+            // start register activity
+            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+        });
+        
+        // handle recover password
+        recoverPassword.setOnClickListener(v -> {
+            showDialogToInputEmail();         
+        });
+    }
+
+    private void showDialogToInputEmail() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Recover password");
+
+        // linear layout
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setPadding(8, 8, 8, 8);
+        EditText emailEt = new EditText(this);
+        emailEt.setHint("Email");
+        emailEt.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+
+        linearLayout.addView(emailEt);
+
+
+        // add view to dialog
+        builder.setView(linearLayout);
+
+
+        builder.setPositiveButton("Recover", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                recoveryPassword(emailEt.getText().toString().trim());
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.create().show();
+    }
+
+    private void recoveryPassword(String email) {
+        progressBar.setVisibility(View.VISIBLE);
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(LoginActivity.this, "Please check your mail to recovery password", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            progressBar.setVisibility(View.INVISIBLE);
+                            Toast.makeText(LoginActivity.this, "Recovery fail", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void login(String email, String password) {
@@ -95,6 +167,7 @@ public class LoginActivity extends AppCompatActivity {
         mLogin = findViewById(R.id.login_login_btn);
         progressBar = findViewById(R.id.login_progressbar);
         noHaveAccountTv = findViewById(R.id.no_have_account_tv);
+        recoverPassword = findViewById(R.id.recover_password_tv);
 
     }
 

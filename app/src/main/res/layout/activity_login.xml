@@ -4,27 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginActivity"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".LoginActivity">
 
     <TextView
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:fontFamily="@font/abril_fatface"
         android:text="Login"
-        android:id="@+id/title"
         android:textColor="@color/my_color"
-        android:textSize="48sp"
-        android:layout_centerHorizontal="true"/>
+        android:textSize="48sp" />
 
     <ProgressBar
+        android:id="@+id/login_progressbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/login_progressbar"
         android:layout_below="@id/title"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
 
 
     <com.google.android.material.textfield.TextInputLayout
@@ -32,60 +32,73 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:endIconMode="clear_text"
-        app:helperText="Required*"
-        app:helperTextTextColor="@color/my_red"
+        android:layout_above="@id/password_input"
         app:counterEnabled="true"
+        app:endIconMode="clear_text"
         app:errorEnabled="true"
-        android:layout_above="@id/password_input">
+        app:helperText="Required*"
+        app:helperTextTextColor="@color/my_red">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/login_email_et"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textEmailAddress"
-            android:hint="Email" />
+            android:hint="Email"
+            android:inputType="textEmailAddress" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password_input"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:endIconMode="password_toggle"
-        app:helperText="Required*"
-        app:helperTextTextColor="@color/my_red"
-        app:counterEnabled="true"
-        app:errorEnabled="true"
         android:layout_above="@id/login_login_btn"
-        android:layout_marginBottom="100dp">
+        android:layout_marginBottom="100dp"
+        app:counterEnabled="true"
+        app:endIconMode="password_toggle"
+        app:errorEnabled="true"
+        app:helperText="Required*"
+        app:helperTextTextColor="@color/my_red">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/login_password_et"
             android:layout_width="match_parent"
-            android:inputType="textPassword"
             android:layout_height="wrap_content"
-            android:hint="Password" />
+            android:hint="Password"
+            android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
+
     <Button
+        android:id="@+id/login_login_btn"
+        style="?attr/materialButtonOutlinedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_above="@id/recover_password_tv"
+        android:layout_marginBottom="10dp"
         android:text="Login"
-        android:id="@+id/login_login_btn"
-        android:textColor="@color/my_color"
-        android:layout_above="@id/no_have_account_tv"
-        style="?attr/materialButtonOutlinedStyle"
-        android:layout_marginBottom="10dp"/>
+        android:textColor="@color/my_color" />
 
     <TextView
+        android:id="@+id/recover_password_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No have account? Register"
-        android:id="@+id/no_have_account_tv"
-        android:textSize="16sp"
+        android:layout_above="@id/no_have_account_tv"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp"
+        android:text="Forgot password? Recover"
         android:textColor="@color/black"
-        android:layout_marginBottom="50dp"/>
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/no_have_account_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:text="No have account? Register"
+        android:textColor="@color/black"
+        android:textSize="16sp" />
 
 
 </RelativeLayout>

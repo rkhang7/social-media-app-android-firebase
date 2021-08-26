@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegisterActivity"
+    tools:context=".LoginActivity"
     android:padding="16dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/abril_fatface"
-        android:text="Register"
+        android:text="Login"
         android:id="@+id/title"
         android:textColor="@color/my_color"
         android:textSize="48sp"
@@ -20,7 +20,7 @@
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/register_progressbar"
+        android:id="@+id/login_progressbar"
         android:layout_below="@id/title"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
@@ -40,7 +40,7 @@
         android:layout_above="@id/password_input">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/register_email_et"
+            android:id="@+id/login_email_et"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
@@ -56,11 +56,11 @@
         app:helperTextTextColor="@color/my_red"
         app:counterEnabled="true"
         app:errorEnabled="true"
-        android:layout_above="@id/register_register_btn"
+        android:layout_above="@id/login_login_btn"
         android:layout_marginBottom="100dp">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/register_password_et"
+            android:id="@+id/login_password_et"
             android:layout_width="match_parent"
             android:inputType="textPassword"
             android:layout_height="wrap_content"
@@ -69,18 +69,18 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Register"
-        android:id="@+id/register_register_btn"
+        android:text="Login"
+        android:id="@+id/login_login_btn"
         android:textColor="@color/my_color"
-        android:layout_above="@id/have_account_tv"
+        android:layout_above="@id/no_have_account_tv"
         style="?attr/materialButtonOutlinedStyle"
         android:layout_marginBottom="10dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Already have account? Login"
-        android:id="@+id/have_account_tv"
+        android:text="No have account? Register"
+        android:id="@+id/no_have_account_tv"
         android:textSize="16sp"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"

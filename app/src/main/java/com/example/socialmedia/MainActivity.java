@@ -26,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
             // start register activity
             startActivity(new Intent(MainActivity.this, RegisterActivity.class));
         });
+
+        mLoginBtn.setOnClickListener(v -> {
+            // start login activity
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+        });
     }
 
     private void addControls() {

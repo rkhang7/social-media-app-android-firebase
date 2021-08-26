@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -20,27 +19,25 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
-public class RegisterActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     private EditText mEmailEt, mPasswordEt;
-    private Button mRegisterBtn;
+    private Button mLogin;
     private ProgressBar progressBar; // show dialog when registering user
     private FirebaseAuth mAuth;
-    private TextView haveAccountTv;
+    private TextView noHaveAccountTv;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_login);
 
         addControls();
         addEvents();
-
-
     }
 
     private void addEvents() {
-        mRegisterBtn.setOnClickListener(v -> {
+        // handle login button click
+        mLogin.setOnClickListener(v -> {
             // input email, password;
             String email = mEmailEt.getText().toString().trim();
             String password = mPasswordEt.getText().toString().trim();
@@ -53,63 +50,54 @@ public class RegisterActivity extends AppCompatActivity {
                 mPasswordEt.requestFocus();
             }
             else {
-                registerUser(email, password);
+                login(email, password);
             }
-        });
-
-        // have account click
-        haveAccountTv.setOnClickListener(v -> {
-            // start login activity
-            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
         });
     }
 
-    private void registerUser(String email, String password) {
+    private void login(String email, String password) {
         progressBar.setVisibility(View.VISIBLE);
-        mAuth.createUserWithEmailAndPassword(email, password)
+        mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             progressBar.setVisibility(View.INVISIBLE);
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            startActivity(new Intent(RegisterActivity.this, ProfileActivity.class));
+                            startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
                             finish();
                         }
-                        else{
+                        else {
                             progressBar.setVisibility(View.INVISIBLE);
-                            Toast.makeText(RegisterActivity.this, "Register fail", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Login fail", Toast.LENGTH_SHORT).show();
                         }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
-                    public void onFailure(@NonNull  Exception e) {
+                    public void onFailure(@NonNull Exception e) {
                         progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(RegisterActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void addControls() {
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-
         // actionbar and title
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Create Account");
+        actionBar.setTitle("Login");
         //enable back home
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
 
-        mEmailEt = findViewById(R.id.register_email_et);
-        mPasswordEt = findViewById(R.id.register_password_et);
-        mRegisterBtn = findViewById(R.id.register_register_btn);
-        progressBar = findViewById(R.id.register_progressbar);
-        haveAccountTv = findViewById(R.id.have_account_tv);
-
+        mEmailEt = findViewById(R.id.login_email_et);
+        mPasswordEt = findViewById(R.id.login_password_et);
+        mLogin = findViewById(R.id.login_login_btn);
+        progressBar = findViewById(R.id.login_progressbar);
+        noHaveAccountTv = findViewById(R.id.no_have_account_tv);
 
     }
+
 
     @Override
     public boolean onSupportNavigateUp() {

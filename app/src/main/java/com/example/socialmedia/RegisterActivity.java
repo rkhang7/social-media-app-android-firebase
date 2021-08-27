@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -21,6 +20,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText mEmailEt, mPasswordEt;
@@ -71,9 +74,34 @@ public class RegisterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
-                            progressBar.setVisibility(View.INVISIBLE);
+                            // get email and id form auth
                             FirebaseUser user = mAuth.getCurrentUser();
-                            startActivity(new Intent(RegisterActivity.this, ProfileActivity.class));
+                            String email = user.getEmail();
+                            String id = user.getUid();
+
+                            //create hashmap to store user data
+                            HashMap<Object, String> hashMap = new HashMap<>();
+                            hashMap.put("uid", id);
+                            hashMap.put("email", email);
+                            hashMap.put("name", "");
+                            hashMap.put("phone", "");
+                            hashMap.put("image", "");
+
+                            // firebase database instance
+
+                            FirebaseDatabase database = FirebaseDatabase.getInstance();
+                            
+                            // path to store user data name "Users"
+                            DatabaseReference reference = database.getReference("Users");
+                            reference.child(id).setValue(hashMap);
+
+
+
+
+                            progressBar.setVisibility(View.INVISIBLE);
+
+                            // start profile activity
+                            startActivity(new Intent(RegisterActivity.this, DashboardActivity.class));
                             finish();
                         }
                         else{

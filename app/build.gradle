@@ -46,4 +46,7 @@ dependencies {
 
     // google sign in library
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
+
+    // picaso
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }

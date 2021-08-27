@@ -73,11 +73,19 @@
         style="?attr/materialButtonOutlinedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/recover_password_tv"
+        android:layout_above="@id/login_google_btn"
         android:layout_marginBottom="10dp"
         android:text="Login"
         android:textColor="@color/my_color" />
+    <com.google.android.gms.common.SignInButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/recover_password_tv"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/login_google_btn"
+        android:layout_marginBottom="10dp">
 
+    </com.google.android.gms.common.SignInButton>
     <TextView
         android:id="@+id/recover_password_tv"
         android:layout_width="wrap_content"

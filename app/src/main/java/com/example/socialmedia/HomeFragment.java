@@ -23,6 +23,7 @@ public class HomeFragment extends Fragment {
     // Firebase
     private FirebaseAuth mAuth;
 
+
     // Views
     private View view;
 
@@ -50,6 +51,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull  MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
+
+        menu.findItem(R.id.action_search).setVisible(false); // hide search view
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -63,6 +66,8 @@ public class HomeFragment extends Fragment {
             mAuth.signOut();
             checkStatusUser();
         }
+
+
         return super.onOptionsItemSelected(item);
     }
 

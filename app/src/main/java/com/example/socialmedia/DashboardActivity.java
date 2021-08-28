@@ -40,12 +40,15 @@ public class DashboardActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.nav_home:
                         fragment = new HomeFragment();
+                        actionBar.setTitle("Home");
                         break;
                     case R.id.nav_user:
                         fragment = new UserFragment();
+                        actionBar.setTitle("Users");
                         break;
                     case R.id.nav_profile:
                         fragment = new ProfileFragment();
+                        actionBar.setTitle("Profile");
                         break;
                 }
 
@@ -61,7 +64,7 @@ public class DashboardActivity extends AppCompatActivity {
     private void addControls() {
         // profile
          actionBar = getSupportActionBar();
-        actionBar.setTitle("Home");
+         actionBar.setTitle("Home");
 
         // init FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
@@ -97,23 +100,5 @@ public class DashboardActivity extends AppCompatActivity {
         super.onStart();
     }
 
-    // create menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
 
-    //handle menu when click
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        // get menu id
-        int id = item.getItemId();
-        if(id == R.id.action_signout){
-            mAuth.signOut();
-            checkStatusUser();
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

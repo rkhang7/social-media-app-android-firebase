@@ -17,6 +17,9 @@ import androidx.fragment.app.Fragment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -468,4 +471,44 @@ public class ProfileFragment extends Fragment {
 
 
     }
+    // create menu
+
+    @Override
+    public void onCreate(@Nullable  Bundle savedInstanceState) {
+        setHasOptionsMenu(true); // to show menu
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.main_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    //handle menu when click
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // get menu id
+        int id = item.getItemId();
+        if(id == R.id.action_signout){
+            mAuth.signOut();
+            checkStatusUser();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void checkStatusUser(){
+        // get current user;
+        FirebaseUser user = mAuth.getCurrentUser();
+        if(user != null){
+            // user signed
+        }
+        else {
+            // user do not sign
+            startActivity(new Intent(getActivity(), MainActivity.class));
+            getActivity().finish();
+        }
+    }
+
 }

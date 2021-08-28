@@ -447,7 +447,8 @@ public class ProfileFragment extends Fragment {
                 phoneTv.setText(phone);
                 // avatar
                 if (image.equals("")) {
-                    Picasso.get().load(R.drawable.ic_face_black).into(avatarIv);
+//                    Picasso.get().load(R.drawable.ic_face_black).into(avatarIv);
+                    avatarIv.setImageResource(R.drawable.ic_face_custom);
                 } else {
                     Picasso.get().load(image).into(avatarIv);
                 }

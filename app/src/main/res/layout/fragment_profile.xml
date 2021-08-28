@@ -17,7 +17,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="180dp"
                 android:background="#781e9a"
-                android:id="@+id/coverIv">
+                android:id="@+id/coverIv"
+                android:scaleType="centerCrop">
 
 
 

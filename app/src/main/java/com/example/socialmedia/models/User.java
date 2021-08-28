@@ -1,4 +1,4 @@
-package com.example.socialmedia;
+package com.example.socialmedia.models;
 
 public class User {
     private String uid;

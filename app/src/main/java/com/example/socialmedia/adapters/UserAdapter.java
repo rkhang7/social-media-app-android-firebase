@@ -1,6 +1,7 @@
-package com.example.socialmedia;
+package com.example.socialmedia.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.socialmedia.ChatActivity;
+import com.example.socialmedia.R;
+import com.example.socialmedia.models.User;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -70,6 +74,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             avatarIv = itemView.findViewById(R.id.avatarIv);
             nameTv = itemView.findViewById(R.id.nameTv);
             emailTv = itemView.findViewById(R.id.emailTv);
+
+            // start chat activity
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    User user = userList.get(getAdapterPosition());
+                    Intent intent = new Intent(mContext, ChatActivity.class);
+                    intent.putExtra("hisUid", user.getUid());
+                    mContext.startActivity(intent);
+                }
+            });
         }
+
+
     }
 }

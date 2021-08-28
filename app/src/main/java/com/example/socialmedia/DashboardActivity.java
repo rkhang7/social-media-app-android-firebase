@@ -42,6 +42,10 @@ public class DashboardActivity extends AppCompatActivity {
                         fragment = new HomeFragment();
                         actionBar.setTitle("Home");
                         break;
+                    case R.id.nav_chats:
+                        fragment = new ChatListFragment();
+                        actionBar.setTitle("Chat");
+                        break;
                     case R.id.nav_user:
                         fragment = new UserFragment();
                         actionBar.setTitle("Users");

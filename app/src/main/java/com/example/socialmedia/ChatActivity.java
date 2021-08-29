@@ -31,7 +31,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -129,11 +131,27 @@ public class ChatActivity extends AppCompatActivity {
                     public void onDataChange( DataSnapshot snapshot) {
                         hisImage = snapshot.child("image").getValue(String.class);
                         String name = snapshot.child("name").getValue(String.class);
+                        String onlineStatus = snapshot.child("onlineStatus").getValue(String.class);
 
                         // set info
                         nameTv.setText(name);
                         if(!hisImage.equals("")){
                             Picasso.get().load(hisImage).into(profileIv);
+                        }
+
+                        // set status
+                        if(onlineStatus.equals("online")){
+                            userStatusTv.setText("Online");
+                        }
+                        else if(onlineStatus.equals("offline")){
+                            userStatusTv.setText("Offline");
+                        }
+                        else{
+                            Timestamp ts = Timestamp.valueOf(onlineStatus);
+                            Date date = new Date();
+                            date.setTime(ts.getTime());
+                            String formattedDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date);
+                            userStatusTv.setText("Last seen: " + formattedDate);
                         }
                     }
 
@@ -225,6 +243,16 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+    private void updateOnlineStatus(String status){
+        DatabaseReference reference = firebaseDatabase.getReference("Users").child(myUid);
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("onlineStatus", status);
+        reference.updateChildren(hashMap);
+    }
+
+
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -237,6 +265,7 @@ public class ChatActivity extends AppCompatActivity {
         if(item.getItemId() == R.id.action_signout){
             mAuth.signOut();
             checkStatusUser();
+            updateOnlineStatus("offline");
         }
         else{
 
@@ -247,6 +276,14 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         checkStatusUser();
+        updateOnlineStatus("online");
         super.onStart();
+    }
+
+    @Override
+    protected void onPause() {
+        String timestamp = new Timestamp(System.currentTimeMillis()).toString();
+        updateOnlineStatus(timestamp);
+        super.onPause();
     }
 }

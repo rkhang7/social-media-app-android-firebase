@@ -7,17 +7,19 @@ public class User {
     private String phone;
     private String image;
     private String cover;
+    private String onlineStatus;
 
     public User() {
     }
 
-    public User(String uid, String email, String name, String phone, String image, String cover) {
+    public User(String uid, String email, String name, String phone, String image, String cover, String onlineStatus) {
         this.uid = uid;
         this.email = email;
         this.name = name;
         this.phone = phone;
         this.image = image;
         this.cover = cover;
+        this.onlineStatus = onlineStatus;
     }
 
     public String getUid() {
@@ -66,6 +68,14 @@ public class User {
 
     public void setCover(String cover) {
         this.cover = cover;
+    }
+
+    public String getOnlineStatus() {
+        return onlineStatus;
+    }
+
+    public void setOnlineStatus(String onlineStatus) {
+        this.onlineStatus = onlineStatus;
     }
 
     @Override

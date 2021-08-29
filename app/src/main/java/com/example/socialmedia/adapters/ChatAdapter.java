@@ -1,11 +1,15 @@
 package com.example.socialmedia.adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,12 +19,18 @@ import com.example.socialmedia.R;
 import com.example.socialmedia.models.Chat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -103,14 +113,82 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     public class ChatViewHolder extends RecyclerView.ViewHolder {
         private CircleImageView profileIv;
-        private TextView messageTv, timeTv, isSeenTv;
+         TextView messageTv, timeTv, isSeenTv;
+        private LinearLayout messageLayout;
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
             profileIv = itemView.findViewById(R.id.profileIv);
             messageTv = itemView.findViewById(R.id.messageTv);
             timeTv = itemView.findViewById(R.id.timeTv);
             isSeenTv = itemView.findViewById(R.id.isSeenTv);
+            messageLayout = itemView.findViewById(R.id.messageLayout);
+
+            // handle delete message
+            messageLayout.setOnClickListener(v -> {
+                deleteMessage(getAdapterPosition());
+            });
         }
+    }
+
+
+    private void deleteMessage(int position) {
+        String myUid = user.getUid();
+
+        // get current message
+        Chat chat = chatList.get(position);
+
+        // only delete sender's message
+        if(chat.getSender().equals(myUid)){
+            // create confirm dialog
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setTitle("Delete");
+            builder.setMessage("Are you sure to delete this message? ");
+
+            // handle button
+            builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    String msg = "This message was deleted";
+
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
+
+                    // <=> message == chat.getMessage() --> log ra la biet
+                    databaseReference.orderByChild("message").equalTo(chat.getMessage()).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                                HashMap<String, Object> hashMap = new HashMap<>();
+                                hashMap.put("message", msg);
+
+                                // magic
+                                dataSnapshot.getRef().updateChildren(hashMap);
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+                }
+            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+
+            // show dialog
+            builder.create().show();
+        }
+        else {
+            // nothing
+        }
+
     }
 
     @Override

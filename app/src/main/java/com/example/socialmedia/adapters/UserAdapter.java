@@ -47,7 +47,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
         if(user.getImage().equals("")){
-            Log.e("TAG", "onBindViewHolder: " + "saas" );
             holder.avatarIv.setImageResource(R.drawable.ic_face_custom);
         }
         else{

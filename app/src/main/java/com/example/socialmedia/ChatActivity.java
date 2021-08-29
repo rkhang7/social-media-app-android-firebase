@@ -3,6 +3,7 @@ package com.example.socialmedia;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -14,18 +15,25 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import com.example.socialmedia.adapters.ChatAdapter;
+import com.example.socialmedia.models.Chat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -36,6 +44,8 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private EditText messageEt;
     private ImageButton sendBtn;
+    private List<Chat> chatList;
+    private ChatAdapter chatAdapter;
 
     // firebase
     private FirebaseAuth mAuth;
@@ -45,6 +55,13 @@ public class ChatActivity extends AppCompatActivity {
     // id
     private String myUid;
     private String hisUid;
+
+    // his image;
+    private String hisImage;
+
+    // for checking if user has seen message or not
+    ValueEventListener seenListener;
+    DatabaseReference userRefForSeen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +80,19 @@ public class ChatActivity extends AppCompatActivity {
 
             }
             else{
-                HashMap<String, Object> hashMap = new HashMap<>();
-                hashMap.put("sender", myUid);
-                hashMap.put("receiver", hisUid);
-                hashMap.put("message", message);
+                // get timestamp
+                String timestamp = new Timestamp(System.currentTimeMillis()).toString();
+                // create chat
+                Chat chat = new Chat();
+                chat.setSender(myUid);
+                chat.setReceiver(hisUid);
+                chat.setMessage(message);
+                chat.setTimestamp(timestamp);
+                chat.setSeen(false);
+
 
                 // store message to firebase
-                firebaseDatabase.getReference("Chats").setValue(hashMap);
+                firebaseDatabase.getReference("Chats").push().setValue(chat);
 
                 // reset message
                 messageEt.setText("");
@@ -89,6 +112,8 @@ public class ChatActivity extends AppCompatActivity {
         messageEt = findViewById(R.id.messageEt);
         sendBtn = findViewById(R.id.sendBtn);
 
+
+
         // init firebase
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
@@ -102,13 +127,13 @@ public class ChatActivity extends AppCompatActivity {
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange( DataSnapshot snapshot) {
-                        String image = snapshot.child("image").getValue(String.class);
+                        hisImage = snapshot.child("image").getValue(String.class);
                         String name = snapshot.child("name").getValue(String.class);
 
                         // set info
                         nameTv.setText(name);
-                        if(!image.equals("")){
-                            Picasso.get().load(image).into(profileIv);
+                        if(!hisImage.equals("")){
+                            Picasso.get().load(hisImage).into(profileIv);
                         }
                     }
 
@@ -118,6 +143,72 @@ public class ChatActivity extends AppCompatActivity {
                     }
                 });
 
+        // set up show message
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
+        chatList = new ArrayList<>();
+
+        ChatAdapter chatAdapter = new ChatAdapter(this,chatList, hisImage);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setAdapter(chatAdapter);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        readMessage();
+        
+        seenMessage();
+
+    }
+
+    private void seenMessage() {
+        firebaseDatabase.getReference("Chats").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Chat chat = dataSnapshot.getValue(Chat.class);
+                    if(chat.getSender().equals(hisUid) && chat.getReceiver().equals(myUid)){
+                        HashMap<String, Object> hashMap = new HashMap();
+                        hashMap.put("seen", true);
+                        dataSnapshot.getRef().updateChildren(hashMap);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void readMessage() {
+        firebaseDatabase.getReference("Chats").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull  DataSnapshot snapshot) {
+                chatList.clear();
+
+                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Chat chat = dataSnapshot.getValue(Chat.class);
+                    if(chat.getSender().equals(myUid) && chat.getReceiver().equals(hisUid)
+                    || chat.getSender().equals(hisUid) && chat.getReceiver().equals(myUid)){
+                        chatList.add(chat);
+                    }
+
+                }
+
+
+                chatAdapter = new ChatAdapter(ChatActivity.this,chatList, hisImage);
+                chatAdapter.notifyDataSetChanged();
+                recyclerView.setAdapter(chatAdapter);
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull  DatabaseError error) {
+
+            }
+        });
     }
 
     private void checkStatusUser(){

@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -100,6 +102,26 @@ public class ChatActivity extends AppCompatActivity {
                 messageEt.setText("");
             }
         });
+
+        // handle typing status when change edit text
+        messageEt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length() != 0){
+                    updateTypingStatus(hisUid);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private void addControls() {
@@ -132,7 +154,7 @@ public class ChatActivity extends AppCompatActivity {
                         hisImage = snapshot.child("image").getValue(String.class);
                         String name = snapshot.child("name").getValue(String.class);
                         String onlineStatus = snapshot.child("onlineStatus").getValue(String.class);
-
+                        String typingStatus = snapshot.child("typingTo").getValue(String.class);
                         // set info
                         nameTv.setText(name);
                         if(!hisImage.equals("")){
@@ -140,19 +162,25 @@ public class ChatActivity extends AppCompatActivity {
                         }
 
                         // set status
-                        if(onlineStatus.equals("online")){
-                            userStatusTv.setText("Online");
+                        if(typingStatus.equals(myUid)){
+                            userStatusTv.setText("Typing...");
                         }
-                        else if(onlineStatus.equals("offline")){
-                            userStatusTv.setText("Offline");
+                        else {
+                            if(onlineStatus.equals("online")){
+                                userStatusTv.setText("Online");
+                            }
+                            else if(onlineStatus.equals("offline")){
+                                userStatusTv.setText("Offline");
+                            }
+                            else{
+                                Timestamp ts = Timestamp.valueOf(onlineStatus);
+                                Date date = new Date();
+                                date.setTime(ts.getTime());
+                                String formattedDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date);
+                                userStatusTv.setText("Last seen: " + formattedDate);
+                            }
                         }
-                        else{
-                            Timestamp ts = Timestamp.valueOf(onlineStatus);
-                            Date date = new Date();
-                            date.setTime(ts.getTime());
-                            String formattedDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date);
-                            userStatusTv.setText("Last seen: " + formattedDate);
-                        }
+
                     }
 
                     @Override
@@ -250,6 +278,13 @@ public class ChatActivity extends AppCompatActivity {
         reference.updateChildren(hashMap);
     }
 
+    private void updateTypingStatus(String typing){
+        DatabaseReference reference = firebaseDatabase.getReference("Users").child(myUid);
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("typingTo", typing);
+        reference.updateChildren(hashMap);
+    }
+
 
 
 
@@ -284,6 +319,7 @@ public class ChatActivity extends AppCompatActivity {
     protected void onPause() {
         String timestamp = new Timestamp(System.currentTimeMillis()).toString();
         updateOnlineStatus(timestamp);
+        updateTypingStatus("noOne");
         super.onPause();
     }
 }

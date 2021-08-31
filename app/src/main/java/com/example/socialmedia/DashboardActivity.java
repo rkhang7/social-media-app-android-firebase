@@ -11,10 +11,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
+import com.example.socialmedia.notifications.Token;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class DashboardActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -90,12 +96,36 @@ public class DashboardActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         if(user != null){
             // user signed
+
+            // update token to send message notification
+            updateToken();
         }
         else {
             // user do not sign
             startActivity(new Intent(DashboardActivity.this, MainActivity.class));
             finish();
         }
+    }
+
+    private void updateToken() {
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+
+                        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Tokens");
+
+                        Token myToken = new Token(token);
+                        databaseReference.child(mAuth.getCurrentUser().getUid()).setValue(myToken);
+
+                    }
+                });
     }
 
     @Override

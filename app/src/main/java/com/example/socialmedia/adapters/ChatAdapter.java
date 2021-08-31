@@ -86,10 +86,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
          holder.timeTv.setText(formattedDate);
 
 
-
-        if(!hisImage.equals("")){
-            Picasso.get().load(hisImage).into(holder.profileIv);
+        try{
+            if(!hisImage.equals("")){
+                Picasso.get().load(hisImage).into(holder.profileIv);
+            }
+        }catch (NullPointerException nullPointerException){
+            Picasso.get().load(R.drawable.ic_face_custom).into(holder.profileIv);
         }
+
 
 
         if(position == chatList.size() - 1){

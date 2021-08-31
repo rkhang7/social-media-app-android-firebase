@@ -6,23 +6,33 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.example.socialmedia.adapters.ChatAdapter;
 import com.example.socialmedia.models.Chat;
+import com.example.socialmedia.models.User;
+import com.example.socialmedia.notifications.ApiService;
+import com.example.socialmedia.notifications.Client;
+import com.example.socialmedia.notifications.Data;
+import com.example.socialmedia.notifications.Response;
+import com.example.socialmedia.notifications.Sender;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -40,6 +50,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class ChatActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -66,6 +78,11 @@ public class ChatActivity extends AppCompatActivity {
     // for checking if user has seen message or not
     ValueEventListener seenListener;
     DatabaseReference userRefForSeen;
+
+    // token
+    private String myToken;
+    private String hisToken;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,8 +115,33 @@ public class ChatActivity extends AppCompatActivity {
                 // store message to firebase
                 firebaseDatabase.getReference("Chats").push().setValue(chat);
 
+                // handle send message notification
+
+                firebaseDatabase.getReference("Users").child(myUid).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        User user = snapshot.getValue(User.class);
+                        Log.e("TAG", "onDataChange: " + user.getName() );
+                        senNotification(hisUid, user.getName(), message);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+
+
+
+
+
                 // reset message
                 messageEt.setText("");
+
+                // close keyboard
+                closeKeyBoard();
+
             }
         });
 
@@ -124,6 +166,45 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    private void closeKeyBoard(){
+        View view = this.getCurrentFocus();
+        if (view != null){
+            InputMethodManager imm = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private void senNotification(String hisUid, String name, String message) {
+        // get his token
+        firebaseDatabase.getReference("Tokens").child(hisUid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                hisToken = snapshot.child("token").getValue(String.class);
+
+                Data data = new Data(myUid, "New message",name + ": " + message, hisUid, R.drawable.ic_face_custom);
+                Sender sender = new Sender(data, hisToken);
+
+                apiService.postData(sender).enqueue(new Callback<Response>() {
+                    @Override
+                    public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<Response> call, Throwable t) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull  DatabaseError error) {
+
+            }
+        });
+    }
+
     private void addControls() {
         // init views
         toolbar = findViewById(R.id.toolbar);
@@ -136,7 +217,8 @@ public class ChatActivity extends AppCompatActivity {
         messageEt = findViewById(R.id.messageEt);
         sendBtn = findViewById(R.id.sendBtn);
 
-
+        //init ApiService
+        apiService = Client.getRetrofit("https://fcm.googleapis.com/").create(ApiService.class);
 
         // init firebase
         mAuth = FirebaseAuth.getInstance();
@@ -195,7 +277,7 @@ public class ChatActivity extends AppCompatActivity {
         chatList = new ArrayList<>();
 
         ChatAdapter chatAdapter = new ChatAdapter(this,chatList, hisImage);
-        recyclerView.setHasFixedSize(true);
+        recyclerView.setNestedScrollingEnabled(true);
         recyclerView.setAdapter(chatAdapter);
         recyclerView.setLayoutManager(linearLayoutManager);
 

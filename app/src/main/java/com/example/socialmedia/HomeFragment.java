@@ -66,6 +66,10 @@ public class HomeFragment extends Fragment {
             mAuth.signOut();
             checkStatusUser();
         }
+        else if(id == R.id.action_add_post){
+            // start add post activity
+            startActivity(new Intent(getActivity(), AddPostActivity.class));
+        }
 
 
         return super.onOptionsItemSelected(item);

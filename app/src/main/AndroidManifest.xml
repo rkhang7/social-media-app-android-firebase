@@ -15,11 +15,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SocialMedia">
-        <activity android:name=".ChatActivity"
-            android:theme="@style/AppThemeNo">
-
-        </activity>
-        <activity android:name=".LoginActivity"></activity>
+        <activity android:name=".AddPostActivity"></activity>
+        <activity
+            android:name=".ChatActivity"
+            android:theme="@style/AppThemeNo"></activity>
+        <activity android:name=".LoginActivity" />
         <activity android:name=".DashboardActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

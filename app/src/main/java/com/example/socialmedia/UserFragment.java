@@ -111,7 +111,7 @@ public class UserFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull  MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
-
+        menu.findItem(R.id.action_add_post).setVisible(false); // hide add post
         // SearchView
         MenuItem item = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);

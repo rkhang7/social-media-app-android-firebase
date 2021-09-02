@@ -42,6 +42,7 @@ import com.google.firebase.storage.UploadTask;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 
@@ -61,6 +62,10 @@ public class AddPostActivity extends AppCompatActivity {
     private String myEmail;
     private String myName;
     private String myAvatar;
+
+    // info post
+    private String title;
+    private String description;
 
     // views
     private EditText titleEt, descriptionEt;
@@ -84,7 +89,8 @@ public class AddPostActivity extends AppCompatActivity {
 
     private void addEvents() {
         // handle upload post
-        String title = titleEt.getText().toString();
+        title = titleEt.getText().toString();
+
         checkTitleIsTemp(title);
 
         // pick an image from camera or gallery to set imageview
@@ -96,12 +102,16 @@ public class AddPostActivity extends AppCompatActivity {
             }
         });
 
-        String description = descriptionEt.getText().toString();
+
+
+
 
         uploadBtn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                title = titleEt.getText().toString();
+                description = descriptionEt.getText().toString();
                 progressBar.setVisibility(View.VISIBLE);
                 if (imageUri == null) {
                     // upload without image
@@ -158,6 +168,7 @@ public class AddPostActivity extends AppCompatActivity {
     private void uploadPostWithImage(String title, String imageStr, String description) {
         // get timestamp
         String timestamp = String.valueOf(System.currentTimeMillis());
+        String timestampString = new Timestamp(System.currentTimeMillis()).toString();
         String path = "Posts/" + "post_" + timestamp;
 
         StorageReference reference = FirebaseStorage.getInstance().getReference(path);
@@ -183,7 +194,7 @@ public class AddPostActivity extends AppCompatActivity {
                         hashMap.put("pTitle", title);
                         hashMap.put("pDescription", description);
                         hashMap.put("pImage", imageURL);
-                        hashMap.put("pTime", timestamp);
+                        hashMap.put("pTime", timestampString);
 
                         firebaseDatabase.getReference(Util.POST_DATABASE).child(timestamp).setValue(hashMap)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {

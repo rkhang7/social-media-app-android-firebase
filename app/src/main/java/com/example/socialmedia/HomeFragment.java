@@ -6,7 +6,10 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,18 +17,34 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.socialmedia.adapters.PostAdapter;
+import com.example.socialmedia.models.Post;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class HomeFragment extends Fragment {
 
     // Firebase
     private FirebaseAuth mAuth;
+    private FirebaseDatabase firebaseDatabase;
+    private FirebaseUser user;
 
 
     // Views
     private View view;
+
+    //views
+    private List<Post> postList;
+    private PostAdapter postAdapter;
+    private RecyclerView recyclerView;
 
 
     @Override
@@ -34,10 +53,60 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // init firebase
-        mAuth = FirebaseAuth.getInstance();
+
+
+        addControls();
 
         return view;
+    }
+
+    private void addControls() {
+        // init firebase
+        mAuth = FirebaseAuth.getInstance();
+        user = mAuth.getCurrentUser();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+
+        postList = new ArrayList<>();
+        postAdapter = new PostAdapter(getContext());
+        postAdapter.setData(postList);
+        recyclerView = view.findViewById(R.id.post_rcv);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.setReverseLayout(true);
+
+        recyclerView.setAdapter(postAdapter);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+        loadAllPost();
+
+    }
+
+    private void loadAllPost() {
+        // get current user id
+        String myUid = user.getUid();
+        firebaseDatabase.getReference(Util.POST_DATABASE).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull  DataSnapshot snapshot) {
+                postList.clear();
+                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    Post post = dataSnapshot.getValue(Post.class);
+                    postList.add(post);
+
+
+
+                }
+
+                postAdapter.setData(postList);
+                recyclerView.setAdapter(postAdapter);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull  DatabaseError error) {
+
+            }
+        });
     }
 
     // create menu

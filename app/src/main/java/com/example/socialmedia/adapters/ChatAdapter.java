@@ -83,7 +83,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         Date date = new Date();
         date.setTime(ts.getTime());
         String formattedDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date);
-         holder.timeTv.setText(formattedDate);
+        holder.timeTv.setText(formattedDate);
 
 
         try{

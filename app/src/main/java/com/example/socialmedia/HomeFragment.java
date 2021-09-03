@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.socialmedia.adapters.PostAdapter;
 import com.example.socialmedia.models.Post;
@@ -23,10 +24,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -78,11 +83,22 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(postAdapter);
         recyclerView.setLayoutManager(linearLayoutManager);
 
+
+
         loadAllPost();
+        updateUserInfo();
+
+
+    }
+
+    private void updateUserInfo() {
+
+
 
     }
 
     private void loadAllPost() {
+
         // get current user id
         String myUid = user.getUid();
         firebaseDatabase.getReference(Util.POST_DATABASE).addValueEventListener(new ValueEventListener() {
@@ -96,9 +112,10 @@ public class HomeFragment extends Fragment {
 
 
                 }
-
+//                updateUserInfo();
                 postAdapter.setData(postList);
                 recyclerView.setAdapter(postAdapter);
+
 
             }
 

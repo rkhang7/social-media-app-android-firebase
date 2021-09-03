@@ -60,12 +60,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         // name
         holder.nameTv.setText(post.getuName());
 
-        // time
-//        Timestamp ts = Timestamp.valueOf(post.getpTime());
-//        Date date = new Date();
-//        date.setTime(ts.getTime());
-//        String formattedDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date);
-//        holder.timeTv.setText(formattedDate);
+         //time
+        Timestamp ts = Timestamp.valueOf(post.getpTime());
+        Date date = new Date();
+        date.setTime(ts.getTime());
+        String formattedDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(date);
+        holder.timeTv.setText(formattedDate);
 
         // title
         holder.titleTv.setText(post.getpTitle());

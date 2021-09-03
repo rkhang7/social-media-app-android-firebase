@@ -133,7 +133,7 @@ public class AddPostActivity extends AppCompatActivity {
     private void uploadWithoutImage(String title, String description) {
         // get timestamp
         String timestamp = String.valueOf(System.currentTimeMillis());
-
+        String timestampString = new Timestamp(System.currentTimeMillis()).toString();
         HashMap<String, Object> hashMap = new HashMap<>();
 
         hashMap.put("uid", myId);
@@ -144,7 +144,7 @@ public class AddPostActivity extends AppCompatActivity {
         hashMap.put("pTitle", title);
         hashMap.put("pDescription", description);
         hashMap.put("pImage", "noImage");
-        hashMap.put("pTime", timestamp);
+        hashMap.put("pTime", timestampString);
 
         firebaseDatabase.getReference(Util.POST_DATABASE).child(timestamp).setValue(hashMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

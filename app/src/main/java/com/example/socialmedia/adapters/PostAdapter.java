@@ -1,17 +1,20 @@
 package com.example.socialmedia.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.socialmedia.R;
+import com.example.socialmedia.ThereProfileActivity;
 import com.example.socialmedia.models.Post;
 import com.squareup.picasso.Picasso;
 
@@ -100,6 +103,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         private TextView nameTv, timeTv, titleTv, descriptionTv, totalLikeTv, totalCommentTv;
         private ImageView pImageIv;
         private Button likeBtn, commentBtn, shareBtn;
+        private LinearLayout profileLayout;
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             avatarIv = itemView.findViewById(R.id.u_avatar_iv);
@@ -113,6 +117,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             likeBtn = itemView.findViewById(R.id.like_btn);
             commentBtn = itemView.findViewById(R.id.comment_btn);
             shareBtn = itemView.findViewById(R.id.share_btn);
+            profileLayout = itemView.findViewById(R.id.profile_layout);
+
+            profileLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, ThereProfileActivity.class);
+                    mContext.startActivity(intent);
+                }
+            });
         }
     }
 }

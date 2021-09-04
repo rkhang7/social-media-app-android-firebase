@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -74,6 +76,9 @@ public class ProfileFragment extends Fragment {
 
     // constant status is avatar or cover
     private String imageStatus;
+
+    // progress
+
 
 
     @Override
@@ -200,7 +205,37 @@ public class ProfileFragment extends Fragment {
                 hashMap.put(type, newData);
 
                 database.getReference("Users").child(user.getUid())
-                        .updateChildren(hashMap);
+                        .updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull  Exception e) {
+
+                    }
+                });
+                // when update name of user also chang name of post
+                if(type.equals("name")){
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Util.POST_DATABASE);
+                    Query query = databaseReference.orderByChild("uid").equalTo(user.getUid());
+                    query.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull  DataSnapshot snapshot) {
+                            HashMap<String, Object> newNameHashMap = new HashMap<>();
+                            newNameHashMap.put("uName", newData);
+                            for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                                dataSnapshot.getRef().updateChildren(newNameHashMap);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull  DatabaseError error) {
+
+                        }
+                    });
+                }
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -286,13 +321,32 @@ public class ProfileFragment extends Fragment {
                             @Override
                             public void onSuccess(Uri uri) {
                                 String imageURL = uri.toString();
-                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
+                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Util.USER_DATABASE).child(user.getUid());
 
 
                                 HashMap<String, Object> hashMap = new HashMap();
                                 hashMap.put("image", imageURL);
 
                                 databaseReference.updateChildren(hashMap);
+
+                                // update avatar of user also update avatar of post
+                                DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference(Util.POST_DATABASE);
+                                Query query = databaseReference1.orderByChild("uid").equalTo(user.getUid());
+                                query.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull  DataSnapshot snapshot) {
+                                        HashMap<String, Object> newAvatarHashMap = new HashMap<>();
+                                        newAvatarHashMap.put("uAvatar", imageURL);
+                                        for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                                            dataSnapshot.getRef().updateChildren(newAvatarHashMap);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull  DatabaseError error) {
+
+                                    }
+                                });
                             }
                         });
                     }

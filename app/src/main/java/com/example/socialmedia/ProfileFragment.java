@@ -486,6 +486,14 @@ public class ProfileFragment extends Fragment {
         fab = view.findViewById(R.id.edit_fab);
 
 
+        readDataUser();
+
+
+        readDataToRecyclerView();
+
+    }
+
+    private void readDataUser() {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -520,11 +528,6 @@ public class ProfileFragment extends Fragment {
 
             }
         });
-
-
-
-        readDataToRecyclerView();
-
     }
 
     private void readDataToRecyclerView() {

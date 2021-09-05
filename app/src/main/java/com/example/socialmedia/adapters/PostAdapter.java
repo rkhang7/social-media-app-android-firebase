@@ -2,6 +2,7 @@ package com.example.socialmedia.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +12,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.socialmedia.ProfileFragment;
 import com.example.socialmedia.R;
 import com.example.socialmedia.ThereProfileActivity;
 import com.example.socialmedia.models.Post;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import java.sql.Timestamp;
@@ -25,15 +31,18 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder>{
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
     private Context mContext;
     private List<Post> postList;
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
+    private String myId;
 
     public PostAdapter(Context mContext) {
         this.mContext = mContext;
     }
 
-    public void setData(List<Post> postList){
+    public void setData(List<Post> postList) {
         this.postList = postList;
         notifyDataSetChanged();
     }
@@ -53,17 +62,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         // set data
 
         // set avatar
-        if(post.getuAvatar().equals("")){
+        if (post.getuAvatar().equals("")) {
             holder.avatarIv.setImageResource(R.drawable.ic_face_custom);
-        }
-        else {
+        } else {
             Picasso.get().load(post.getuAvatar()).into(holder.avatarIv);
         }
 
         // name
         holder.nameTv.setText(post.getuName());
 
-         //time
+        //time
         Timestamp ts = Timestamp.valueOf(post.getpTime());
         Date date = new Date();
         date.setTime(ts.getTime());
@@ -74,19 +82,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         holder.titleTv.setText(post.getpTitle());
 
         // description
-        if(post.getpDescription().equals("")){
+        if (post.getpDescription().equals("")) {
             holder.descriptionTv.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             holder.descriptionTv.setText(post.getpDescription());
         }
 
 
         // image
-        if(post.getpImage().equals("noImage")){
+        if (post.getpImage().equals("noImage")) {
             holder.pImageIv.setVisibility(View.GONE);
-        }
-        else{
+        } else {
             Picasso.get().load(post.getpImage()).into(holder.pImageIv);
         }
 
@@ -104,6 +110,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         private ImageView pImageIv;
         private Button likeBtn, commentBtn, shareBtn;
         private LinearLayout profileLayout;
+
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             avatarIv = itemView.findViewById(R.id.u_avatar_iv);
@@ -119,13 +126,40 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             shareBtn = itemView.findViewById(R.id.share_btn);
             profileLayout = itemView.findViewById(R.id.profile_layout);
 
+            // inti firebase
+            mAuth = FirebaseAuth.getInstance();
+            user = mAuth.getCurrentUser();
+
             profileLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(mContext, ThereProfileActivity.class);
-                    mContext.startActivity(intent);
+                    // get my id
+                    myId = user.getUid();
+
+                    // get current id;
+                    Post post = postList.get(getAdapterPosition());
+                    String currentId = post.getUid();
+
+                    if (currentId.equals(myId)) {
+                        // start profile fragment
+                        AppCompatActivity activity = (AppCompatActivity) mContext;
+                        Fragment myFragment = new ProfileFragment();
+                        activity.getSupportFragmentManager().beginTransaction().replace(R.id.container, myFragment).addToBackStack(null).commit();
+                    } else {
+                        // start his profile
+                        Intent intent = new Intent(mContext, ThereProfileActivity.class);
+                        intent.putExtra("uid", currentId);
+                        mContext.startActivity(intent);
+                    }
+
+
                 }
             });
         }
     }
+
+    private void startHisProfile() {
+    }
+
+
 }

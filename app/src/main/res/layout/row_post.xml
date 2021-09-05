@@ -128,7 +128,7 @@
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.8"
+                android:layout_weight="0.9"
                 android:text="Like"
                 android:drawableLeft="@drawable/ic_like_black"
                 android:textAllCaps="false"
@@ -148,7 +148,7 @@
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="0.9"
                 android:text="Share"
                 android:drawableLeft="@drawable/ic_share_black"
                 android:textAllCaps="false"

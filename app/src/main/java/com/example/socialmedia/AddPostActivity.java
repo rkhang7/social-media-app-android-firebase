@@ -154,6 +154,10 @@ public class AddPostActivity extends AppCompatActivity {
                         titleEt.setText("");
                         descriptionEt.setText("");
                         progressBar.setVisibility(View.INVISIBLE);
+
+                        // start dashboard activity
+                        startActivity(new Intent(AddPostActivity.this, DashboardActivity.class));
+                        finish();
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -205,6 +209,10 @@ public class AddPostActivity extends AppCompatActivity {
                                         descriptionEt.setText("");
                                         imageView.setImageURI(null);
                                         progressBar.setVisibility(View.INVISIBLE);
+
+                                        // start dashboard activity
+                                        startActivity(new Intent(AddPostActivity.this, DashboardActivity.class));
+                                        finish();
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {

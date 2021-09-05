@@ -14,6 +14,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
 import android.util.Log;
@@ -29,6 +31,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.socialmedia.adapters.PostAdapter;
+import com.example.socialmedia.models.Post;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -49,6 +53,7 @@ import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.normal.TedPermission;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -78,7 +83,12 @@ public class ProfileFragment extends Fragment {
     private String imageStatus;
 
     // progress
+    private String myId;
 
+    // recyclerview
+    private RecyclerView recyclerView;
+    private List<Post> postList;
+    private PostAdapter postAdapter;
 
 
     @Override
@@ -288,7 +298,7 @@ public class ProfileFragment extends Fragment {
         if (imageStatus.equals("avatar")) {
             avatarUri = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            Log.e("TAG", "openCamera: " + avatarUri.toString());
+
             intent.putExtra(MediaStore.EXTRA_OUTPUT, avatarUri);
             startActivityForResult(intent, CAMERA_CODE);
         } else {
@@ -464,6 +474,7 @@ public class ProfileFragment extends Fragment {
         // init firebase
         mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
+        myId = user.getUid();
         database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference("Users").child(user.getUid());
         // init views
@@ -475,20 +486,6 @@ public class ProfileFragment extends Fragment {
         fab = view.findViewById(R.id.edit_fab);
 
 
-        // read current user
-//        Query query = databaseReference.orderByChild("email").equalTo(user.getEmail());
-//
-//        query.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -525,6 +522,46 @@ public class ProfileFragment extends Fragment {
         });
 
 
+
+        readDataToRecyclerView();
+
+    }
+
+    private void readDataToRecyclerView() {
+        postList = new ArrayList<>();
+        postAdapter = new PostAdapter(getContext());
+        postAdapter.setData(postList);
+        recyclerView = view.findViewById(R.id.profile_post_rcv);
+        // layout
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setAdapter(postAdapter);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
+
+        // set data to recyclerview
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Util.POST_DATABASE);
+        Query query = databaseReference.orderByChild("uid").equalTo(myId);
+        query.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                postList.clear();
+                for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                    Post post = dataSnapshot.getValue(Post.class);
+                    postList.add(post);
+                }
+
+                postAdapter.setData(postList);
+                recyclerView.setAdapter(postAdapter);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
     // create menu
 
@@ -560,6 +597,7 @@ public class ProfileFragment extends Fragment {
         FirebaseUser user = mAuth.getCurrentUser();
         if(user != null){
             // user signed
+
         }
         else {
             // user do not sign

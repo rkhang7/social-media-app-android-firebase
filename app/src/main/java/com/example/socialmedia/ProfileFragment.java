@@ -538,6 +538,7 @@ public class ProfileFragment extends Fragment {
         // layout
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.setReverseLayout(true);
         recyclerView.setAdapter(postAdapter);
         recyclerView.setLayoutManager(linearLayoutManager);
 

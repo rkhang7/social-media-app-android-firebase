@@ -128,10 +128,11 @@
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.9"
+                android:layout_weight="0.8"
                 android:text="Like"
                 android:drawableLeft="@drawable/ic_like_black"
                 android:textAllCaps="false"
+                android:textAlignment="textStart"
                 android:id="@+id/like_btn"
                 android:textColor="#757474"
                 android:backgroundTint="@color/white"/>
@@ -139,6 +140,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.2"
+                android:textAlignment="textStart"
                 android:text="Comment"
                 android:textAllCaps="false"
                 android:drawableLeft="@drawable/ic_comment_black"
@@ -148,7 +150,8 @@
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.9"
+                android:layout_weight="1"
+                android:textAlignment="textStart"
                 android:text="Share"
                 android:drawableLeft="@drawable/ic_share_black"
                 android:textAllCaps="false"

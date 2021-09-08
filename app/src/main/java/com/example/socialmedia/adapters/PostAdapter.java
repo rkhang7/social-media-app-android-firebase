@@ -1,27 +1,48 @@
 package com.example.socialmedia.adapters;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.socialmedia.ModalBottomSheet;
 import com.example.socialmedia.ProfileFragment;
 import com.example.socialmedia.R;
 import com.example.socialmedia.ThereProfileActivity;
+import com.example.socialmedia.Util;
 import com.example.socialmedia.models.Post;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.sql.Timestamp;
@@ -110,6 +131,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         private ImageView pImageIv;
         private Button likeBtn, commentBtn, shareBtn;
         private LinearLayout profileLayout;
+        private ImageButton moreBtn;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -125,6 +147,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             commentBtn = itemView.findViewById(R.id.comment_btn);
             shareBtn = itemView.findViewById(R.id.share_btn);
             profileLayout = itemView.findViewById(R.id.profile_layout);
+            moreBtn = itemView.findViewById(R.id.more_btn);
 
             // inti firebase
             mAuth = FirebaseAuth.getInstance();
@@ -155,7 +178,88 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
 
                 }
             });
+
+            // handle more button clicked
+            moreBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // get my id
+                    myId = user.getUid();
+
+                    // get current post
+                    Post post = postList.get(getAdapterPosition());
+
+
+                    if (myId.equals(post.getUid())) {
+
+
+                        // create modal bottom sheet
+                        showBottomSheetDialog(post);
+
+                    }
+
+                }
+            });
+
+
         }
+    }
+
+    private void showBottomSheetDialog(Post post) {
+        final BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(mContext);
+        bottomSheetDialog.setContentView(R.layout.modal_bottom_sheet);
+
+
+        // init views;
+        Button editPostBtn = bottomSheetDialog.findViewById(R.id.edit_post_btn);
+        Button deletePostBtn = bottomSheetDialog.findViewById(R.id.delete_post_btn);
+
+        // handle button delete clicked
+        deletePostBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deletePost(post);
+                bottomSheetDialog.dismiss();
+            }
+        });
+
+        bottomSheetDialog.show();
+    }
+
+    private void deletePost(Post post) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setTitle("Delete post");
+        builder.setMessage("Do you want delete this post ?");
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Util.POST_DATABASE).child(post.getpId());
+                databaseReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            dialog.dismiss();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
+                    }
+                });
+
+
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.create().show();
+
     }
 
     private void startHisProfile() {

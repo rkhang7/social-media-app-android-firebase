@@ -233,21 +233,58 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Util.POST_DATABASE).child(post.getpId());
-                databaseReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
+
+                // delete post with image
+                if(post.getpImage().equals("noImage")){
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Util.POST_DATABASE).child(post.getpId());
+                    databaseReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                dialog.dismiss();
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                         }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    }
-                });
+                    });
+                }
+
+                // delete post without image
+                else{
+                   StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(post.getpImage());
+                   storageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                       @Override
+                       public void onSuccess(Void unused) {
+                            // image deleted
+                           DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Util.POST_DATABASE).child(post.getpId());
+                           databaseReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                               @Override
+                               public void onComplete(@NonNull Task<Void> task) {
+                                   if (task.isSuccessful()) {
+                                       dialog.dismiss();
+                                   }
+                               }
+                           }).addOnFailureListener(new OnFailureListener() {
+                               @Override
+                               public void onFailure(@NonNull Exception e) {
+                                   Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                   dialog.dismiss();
+                               }
+                           });
+
+                       }
+                   }).addOnFailureListener(new OnFailureListener() {
+                       @Override
+                       public void onFailure(@NonNull Exception e) {
+                           Toast.makeText(mContext, e.getMessage(), Toast.LENGTH_SHORT).show();
+                           dialog.dismiss();
+                       }
+                   });
+                }
 
 
             }
